@@ -32,7 +32,7 @@ fun_features: # 一些好玩的功能
     cursorChar: "_" # 游标字符
     loop: false # 是否循环播放效果
   anchorjs: # 为文章内容中的标题添加锚图标
-    enable: true
+    enable: false
     element: h1,h2,h3,h4,h5,h6
     placement: right # icon放置的位置： left | right
     visible: hover # 默认悬浮显示，可选：hover（鼠标在元素上悬浮时显示） | always（一直显示） | touch（移动端触摸显示）
@@ -64,8 +64,8 @@ custom_css:   # 指定自定义 css 文件路径，路径是相对 source 目录
 custom_html: ''  # 自定义底部 HTML 内容（位于 footer 上方），也可用于外部引入 js css 这些操作，注意不要和 post.custom 配置冲突
 
 web_analytics:  # 网页访问统计
-  enable: false
-  baidu:  # 百度统计的Key，参见 https://tongji.baidu.com/sc-web/10000033910/home/site/getjs?siteId=13751376 代码获取中 hm.js? 后边的字符串
+  enable: true
+  baidu:  83df53eb2510e49d9c57be0bce4e6494# 百度统计的Key，参见 https://tongji.baidu.com/sc-web/10000033910/home/site/getjs?siteId=13751376 代码获取中 hm.js? 后边的字符串
   google:  # Google统计的Tracking ID，参见 https://analytics.google.com/analytics/web/
   tencent:  # 腾讯统计的H5 App id，参见 https://mta.qq.com/h5/manage/ctr_app_manage (开启高级功能才有cid)
     sid:
@@ -149,7 +149,7 @@ scroll_top_arrow:  # 向顶部滚动的箭头
 # Index Page
 #---------------------------
 index:
-  banner_img: /img/star.jpg  # 首页 Banner 头图，以下相同
+  banner_img: /img/default.png  # 首页 Banner 头图，以下相同
   banner_img_height: 100  # 头图高度，屏幕百分比，available: 0 - 100
   banner_mask_alpha: 0.5  # 头图黑色蒙版的透明度，available: 0 - 1.0， 0 是完全透明（无蒙版），1 是完全不透明
   post_default_img:  # 默认的文章封面图，当没有指定 index_img 时会使用该图片，若都为空则不显示任何图片
@@ -319,8 +319,8 @@ tag:
   banner_mask_alpha: 0.3  # available: 0 - 1.0
   subtitle:  # 打字机内容
   tagcloud: # 标签云
-    min_font: 25
-    max_font: 35
+    min_font: 20
+    max_font: 30
     unit: px  # 字号单位
     start_color: "#BBBBEE"
     end_color: "#337ab7"
