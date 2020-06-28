@@ -1,6 +1,7 @@
 ---
 title: about
 date: 2020-04-21 15:30:40
+type: "about"
 layout: about
 ---
 ### 关于作者
