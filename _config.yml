@@ -9,10 +9,10 @@ search:
 
 # Site
 title: HuanBlog
-subtitle: ''
+subtitle: 分享是一种快乐
 description: ''
 keywords:
-author: zhegnhuan
+author: qwerhuan
 language: zh-CN
 timezone: ''
 
@@ -50,12 +50,23 @@ post_asset_folder: false
 relative_link: false
 future: true
 highlight:
-  enable: true
+  enable: false
   line_number: true
   auto_detect: false
   tab_replace: ''
   wrap: true
   hljs: false
+
+# code heighlight
+prism_plugin:
+  mode: 'preprocess'    # realtime/preprocess
+  theme: 'tomorrow'
+  line_number: false    # default false
+  custom_css:
+# change to English link
+permalink_pinyin:
+  enable: true
+  separator: '-' # default: '-'
 
 
 # Home page setting
@@ -105,5 +116,5 @@ theme: hexo-theme-matery
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
     type: git 
-    repo: git@github.com:musiczh/musiczh.github.io.git
+    repo: git@gitee.com:qwerhuan/qwerhuan.git
     branch: master
