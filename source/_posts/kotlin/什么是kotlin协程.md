@@ -1,3 +1,29 @@
+---
+title: 『彻底弄懂kotlin协程系列』--什么是kotlin协程？ 	#标题
+date: 2020/7/2 00:00:00 	#建立日期
+summary: 用通俗易懂的语言解释给你听					#文章摘要
+tags: 						#标签
+ - kotlin
+ - 协程 
+categories:  				#分类
+ - kotlin
+img:  						#文章卡片显示的图，使用图床
+
+updated: 					#更新日期
+author:  					#作者
+
+top:						#boolean,文章是否置顶
+cover: false						#文章是否加入轮播图
+coverImg: 					#文章轮播图显示的图片
+toc: true						#是否开启toc
+mathjax: 					#是否开启数学公式支持
+
+comments: true 				#开启评论
+
+---
+
+
+
 # 『彻底弄懂kotlin协程系列』--什么是kotlin协程？
 
 ### 前言

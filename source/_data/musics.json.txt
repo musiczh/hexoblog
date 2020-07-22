@@ -1,0 +1,21 @@
+[{
+    "name": "卡农",
+    "artist": "George Winston",
+    "url": "/medias/music/卡农.mp3",
+    "cover": "/medias/author.jpg"
+}, {
+    "name": "And_the_Winner_Is",
+    "artist": "George Darmon",
+    "url": "/medias/music/And_the_Winner_Is.mp3",
+    "cover": "/medias/author.jpg"
+}, {
+    "name": "云村的告别",
+    "artist": "邱有句",
+    "url": "/medias/music/云村的告别.mp3",
+    "cover": "/medias/author.jpg"
+}, {
+    "name": "Windy_Hill",
+    "artist": "羽肿",
+    "url": "/medias/music/Windy_Hill.mp3",
+    "cover": "/medias/author.jpg"
+}]
