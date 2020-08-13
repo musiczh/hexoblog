@@ -1,7 +1,7 @@
 ---
 title: Activity启动流程详解（基于api28） 	#标题
 date: 2020/8/1 00:00:00 	#建立日期
-summary: 					#文章摘要
+summary: 把握整体流程，详细的代码解释，清晰的图解帮助你理解					#文章摘要
 tags: 						#标签
  - android 
  - activity
@@ -41,7 +41,7 @@ Activity作为Android四大组件之一，他的启动绝对没有那么简单�
 
 普通Activity创建也就是平常我们在代码中采用```startActivity(Intent intent)```方法来创建Activity的方式。总体流程如下图：
 
-<img src="https://s1.ax1x.com/2020/08/02/aYQwF0.png" alt="aYQwF0.png" border="0" />
+<img src="https://s1.ax1x.com/2020/08/02/aYQwF0.png" alt="普通Activity启动整体流程.png" border="0" />
 
 启动过程设计到两个进程：本地进程和系统服务进程。本地进程也就是我们的应用所在进程，系统服务进程为所有应用共用的服务进程。整体思路是：
 
@@ -75,7 +75,7 @@ Activity作为Android四大组件之一，他的启动绝对没有那么简单�
 
 根Activity也就是我们点击桌面图标的时候，应用程序第一个activity启动的流程。这里我侧重讲解多个进程之间的关系，下面的源码也不会讲细节，只讲解普通activity的创建流程。这里也相当于一个补充。先看整体流程图：
 
-<img src="https://s1.ax1x.com/2020/08/02/aYGZVJ.png" alt="aYGZVJ.png" border="0" width=60%/>
+<img src="https://s1.ax1x.com/2020/08/02/aYGZVJ.png" alt="根Activity启动整体流程.png" border="0" width=60%/>
 
 主要涉及四个进程：
 
@@ -99,7 +99,7 @@ Activity作为Android四大组件之一，他的启动绝对没有那么简单�
 
 ##### 流程图
 
-<img src="https://s1.ax1x.com/2020/08/01/aGokDO.png" alt="aGokDO.png" border="0" width=80%/>
+<img src="https://s1.ax1x.com/2020/08/01/aGokDO.png" alt="Activity请求AMS流程.png" border="0" width=80%/>
 
 ##### 源码
 
@@ -255,7 +255,7 @@ Activity作为Android四大组件之一，他的启动绝对没有那么简单�
 
 ##### 流程图
 
-<img src="https://s1.ax1x.com/2020/08/01/aGoya4.png" alt="aGoya4.png" border="0" width=80%/>
+<img src="https://s1.ax1x.com/2020/08/01/aGoya4.png" alt="AMS处理启动Activity流程.png" border="0" width=80%/>
 
 ##### 源码
 
@@ -604,7 +604,7 @@ Activity作为Android四大组件之一，他的启动绝对没有那么简单�
 
 ##### 流程图
 
-<img src="https://s1.ax1x.com/2020/08/01/aGoBrT.png" alt="aGoBrT.png" border="0" width=80%/>
+<img src="https://s1.ax1x.com/2020/08/01/aGoBrT.png" alt="ActivityThread响应启动Activity流程.png" border="0" width=80%/>
 
 ##### 源码
 
