@@ -1122,45 +1122,44 @@ private void handleBindService(BindServiceData data) {
 2. 这一步主要是InnerConnection收到AMS的请求，然后把请求交给ServiceDispatcher去处理，ServiceDispatcher再封装成一个Runnable对象给ActivityThread的H在主线程中执行，最后的真正执行方法是ServiceDispatcher.doConnect()。最终ActivityThread会回调ServiceConnection的方法。
 
    ```java
-      /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java/InnerConnection.java;
-      public void connected(ComponentName name, IBinder service, boolean dead)
-              throws RemoteException {
-          LoadedApk.ServiceDispatcher sd = mDispatcher.get();
-          if (sd != null) {
-              // 和ApplicationThread熟悉的味道，直接调用外部的方法，继续跳转
-              sd.connected(name, service, dead);
-          }
-      }
+   /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java/InnerConnection.java;
+   public void connected(ComponentName name, IBinder service, boolean dead)
+       throws RemoteException {
+       LoadedApk.ServiceDispatcher sd = mDispatcher.get();
+       if (sd != null) {
+           // 和ApplicationThread熟悉的味道，直接调用外部的方法，继续跳转
+           sd.connected(name, service, dead);
+       }
+   }
       
-      
-      /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java;
-      // 我们在调用的时候并没有传入Executor，mActivityThread就是ActivityThread中的mH
-      // 而post方法很明显是Handle的post方法，也就是他的内部类H去执行。
-      // 所以这里就把任务丢给ActivityThread在主线程中执行了。
-      // 这个参数在我们调用bindService会作为参数传入，不知你是否还有印象。
-      // 接下来我们去看看要执行的这个任务是什么
-      public void connected(ComponentName name, IBinder service, boolean dead) {
-          if (mActivityExecutor != null) {
-              mActivityExecutor.execute(new RunConnection(name, service, 0, dead));
-          } else if (mActivityThread != null) {
-              mActivityThread.post(new RunConnection(name, service, 0, dead));
-          } else {
-              doConnected(name, service, dead);
-          }
-      }  
+   /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java;
+   // 我们在调用的时候并没有传入Executor，mActivityThread就是ActivityThread中的mH
+   // 而post方法很明显是Handle的post方法，也就是他的内部类H去执行。
+   // 所以这里就把任务丢给ActivityThread在主线程中执行了。
+   // 这个参数在我们调用bindService会作为参数传入，不知你是否还有印象。
+   // 接下来我们去看看要执行的这个任务是什么
+   public void connected(ComponentName name, IBinder service, boolean dead) {
+       if (mActivityExecutor != null) {
+           mActivityExecutor.execute(new RunConnection(name, service, 0, dead));
+       } else if (mActivityThread != null) {
+           mActivityThread.post(new RunConnection(name, service, 0, dead));
+       } else {
+           doConnected(name, service, dead);
+       }
+   }  
       /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java/RunConnection.class;
-      private final class RunConnection implements Runnable {
-          ...
-          // 上面实例化的时候参数是0，所以执行doConnect方法
-          public void run() {
-              if (mCommand == 0) {
-                  doConnected(mName, mService, mDead);
-              } else if (mCommand == 1) {
-                  doDeath(mName, mService);
-              }
-          }
-          ...
-      }
+   private final class RunConnection implements Runnable {
+       ...
+           // 上面实例化的时候参数是0，所以执行doConnect方法
+           public void run() {
+           if (mCommand == 0) {
+               doConnected(mName, mService, mDead);
+           } else if (mCommand == 1) {
+               doDeath(mName, mService);
+           }
+       }
+       ...
+   }
       
    /frameworks/base/core/java/android/app/LoadedApk.java/ServiceDispatcher.java;
    public void doConnected(ComponentName name, IBinder service, boolean dead) {
