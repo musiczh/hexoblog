@@ -1,5 +1,5 @@
 ---
-title: Android中ContentProvider的工作流程	#标题
+title: Android中ContentProvider的工作流程（基于api29）	#标题
 date: 2020/8/19 00:00:00 	#建立日期
 summary: ContentProvider作为四大组件之一，但是使用的频率确实很少，甚至有一些读者都没用过他，真是毫无存在感的四大组件。但是既然他能作为四大组件，说明他的重要性肯定不低。了解他背后的工作机制，有助于我们更好地了解ContentProvider。					#文章摘要
 tags: 						#标签
