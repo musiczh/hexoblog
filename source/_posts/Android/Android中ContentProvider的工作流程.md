@@ -1,25 +1,34 @@
 ---
+
 title: Android中ContentProvider的工作流程（基于api29）	#标题
 date: 2020/8/19 00:00:00 	#建立日期
-summary: ContentProvider作为四大组件之一，但是使用的频率确实很少，甚至有一些读者都没用过他，真是毫无存在感的四大组件。但是既然他能作为四大组件，说明他的重要性肯定不低。了解他背后的工作机制，有助于我们更好地了解ContentProvider。					#文章摘要
 tags: 						#标签
  - android 
  - contentProvider
 categories:  				#分类
  - Android
-img:  						#文章卡片显示的图，使用图床
-
 updated: 					#更新日期
-author:  					#作者
+keywords:				#关键词
+description:				#文章描述
+top_img:					#文章顶部照片
+comments: true				#是否显示评论模块
+cover:						#文章缩略图
+toc: true							#是否显示toc
+toc_number: true			#是否显示toc_number
+auto_open: true				#是否自动打开toc
+copyright: true					#显示文章版权模块
+copyright_author: 一只修仙的猿		#文章版权作者
+copyright_author_href: 			#文章版权作者链接
+copyright_url:						#文章版权文章链接
+copyright_info:						#文章版权声明文字
+mathjax:
+katex:
+aplayer:
+highlight_shrink: true       #代码框是否打开
 
-top:						#boolean,文章是否置顶
-cover: 						#文章是否加入轮播图
-coverImg: 					#文章轮播图显示的图片
-toc: true						#是否开启toc
-mathjax: 					#是否开启数学公式支持
-
-comments: true 				#开启评论
 ---
+
+
 
 ## 前言
 

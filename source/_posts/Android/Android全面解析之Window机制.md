@@ -1,7 +1,6 @@
 ---
 
-
-title: 最透彻的Android安卓Window全面解析	#标题
+title: Android全面解析之Window机制	#标题
 date: 2020/9/1 00:00:00 	#建立日期
 summary: 带你认识最本质Android的window机制					#文章摘要
 tags: 						#标签
@@ -9,19 +8,29 @@ tags: 						#标签
  - window
 categories:  				#分类
  - Android
-img:  						#文章卡片显示的图，使用图床
 
 updated: 					#更新日期
-author:  					#作者
+keywords:				#关键词
+description:				#文章描述
+top_img:					#文章顶部照片
+comments: true				#是否显示评论模块
+cover:						#文章缩略图
+toc: true							#是否显示toc
+toc_number: true			#是否显示toc_number
+auto_open: true				#是否自动打开toc
+copyright: true					#显示文章版权模块
+copyright_author: 一只修仙的猿		#文章版权作者
+copyright_author_href: 			#文章版权作者链接
+copyright_url:						#文章版权文章链接
+copyright_info:						#文章版权声明文字
+mathjax:
+katex:
+aplayer:
+highlight_shrink: true       #代码框是否打开
 
-top:						#boolean,文章是否置顶
-cover: true 						#文章是否加入轮播图
-coverImg: 					#文章轮播图显示的图片
-toc: true						#是否开启toc
-mathjax: 					#是否开启数学公式支持
-
-comments: true 				#开启评论
 ---
+
+
 
 ## 前言
 
@@ -480,7 +489,7 @@ public void addView(View view, ViewGroup.LayoutParams params,
 }
 ```
 
-代码有点长，盲猜读者你并没有看（嘻嘻），一步步看不复杂的。
+代码有点长，一步步看：
 
 - 首先对参数的合法性进行检查
 - 然后判断该窗口是不是子窗口，如果是的话需要对窗口进行调整，这个好理解，子窗口要跟随父窗口的特性。
@@ -997,8 +1006,6 @@ private void invokePopup(WindowManager.LayoutParams p) {
 
 #### Dialog
 
-dialog和popupWindow最大的区别是：dialog会新建一个PhoneWindow。前面我们了解到，PhoneWindow的作用就是为了统一管理所有属于自身的window，所以dialog的设计就是一个和Activity独立开来的window，他会直接显示在Activity所有view的上面，这也是dialog和popupWindow的本质区别。
-
 dialog的创建过程和popupWindow是大同小异的：创建PhoneWindow，初始化DecorView，添加DecorView。我这里就简单讲解一下。首先看到他的构造方法：
 
 ```java
@@ -1023,7 +1030,26 @@ Dialog(@NonNull Context context, @StyleRes int themeResId, boolean createContext
 }
 ```
 
-这里和前面的Activity创建过程非常像。接下来看到他的show方法：
+这里和前面的Activity创建过程非常像，但是有个重点需要注意mWindowManager其实是Activity的WindowManager，这里的context一般是activity（实际上也只能是activity，非activity会抛出异常，相关内容读者有兴趣可以阅读这篇文章[window的token验证](https://blog.csdn.net/weixin_43766753/article/details/109060496))，我们看到activity的getSystemService方法：
+
+```java
+public Object getSystemService(@ServiceName @NonNull String name) {
+    if (getBaseContext() == null) {
+        throw new IllegalStateException(
+                "System services not available to Activities before onCreate()");
+    }
+	// 获取activity的windowManager
+    if (WINDOW_SERVICE.equals(name)) {
+        return mWindowManager;
+    } else if (SEARCH_SERVICE.equals(name)) {
+        ensureSearchManager();
+        return mSearchManager;
+    }
+    return super.getSystemService(name);
+}
+```
+
+可以看到这里的windowManager确实是Activity的WindowManager。接下来看到他的show方法：
 
 ```java
 public void show() {
@@ -1042,7 +1068,7 @@ public void show() {
 }
 ```
 
-几乎和Activity的添加流程一模一样，这里我也不多讲解了。
+注意这里的mWindowManager是Activity的WindowManager，所以实际上，这里是添加到了Activity的PhoneWindow中。接下来的和前面的添加流程一样，这里我也不多讲解了。
 
 ---
 
@@ -1081,11 +1107,13 @@ windowManagerGlobal使用自己的IWindowSession创建viewRootImpl，这个IWind
 
 从上面的描述中可以发现我全程没有提及到PhoneWindow和WindowManagerImpl。这是因为**他们不属于window机制内的类，而是封装于window机制之上的框架**。假设如果没有PhoneWindow和WindowManager我们该如何添加一个window？首先需要调用WindowGlobal获取session，再创建viewRootImpl，再访问wms，然后再利用viewRootImpl绘制view，是不是很复杂，而这仅仅只是整体的步骤。而WindowManagerImpl正是这个功能。他内部拥有WindowManagerGlobal的单例，然后帮助我们完成了这一系列的步骤。同时，**windowManagerImpl也是只有一个实例，其他的windowManagerImpl都是建立在windowManagerImpl单例上**。这一点在前面有通过源码介绍到。
 
-另外，上面我讲到PhoneWindow并不是window而是一个window容器，那为什么他不要命名为windowContainer呢？PhoneWindow这个类是谷歌给window机制进行更上一层的封装。PhoneWindow内部拥有一个DecorView，我们的布局view都是添加到decorView中的，因为我们可以通过给decorView设置背景，宽高度，标题栏，按键反馈等等，来间接给我们的布局view设置。当我们通过windowManagrImpl添加window的时候，都会把创建的window和PhoneWindow联系起来，让PhoneWindow可以统一处理通过windowManagerImpl添加的window，这点上面有讲到。这样一来，PhoneWindow的存在，**向开发者屏蔽真正的window，暴露给开发者一个“存在的”window**。我们可以**认为**PhoneWindow就是一个window，window是view容器。当我们需要在屏幕上添加view的时候，只需要获得应用window对应的windowManagerImpl，然后直接调用addView方法添加view即可。这里也可以解释为什么windowManager的接口方法是addView而不是addWindow，一个是window确实是以view的存在形式没错，二是为了向开发者屏蔽真正的window，让我们以为是在往window中添加view。画个图如下：
+另外，上面我讲到PhoneWindow并不是window而是一个window容器，那为什么他不要命名为windowContainer呢？首先，PhoneWindow这个类是谷歌给window机制进行更上一层的封装。PhoneWindow内部拥有一个DecorView，我们的布局view都是添加到decorView中的，因为我们可以通过给decorView设置背景，宽高度，标题栏，按键反馈等等，来间接给我们的布局view设置。当我们通过windowManagrImpl添加window的时候，都会把创建的window和PhoneWindow联系起来，让PhoneWindow可以统一处理通过windowManagerImpl添加的window，这点上面有讲到。这样一来，PhoneWindow的存在，**向开发者屏蔽真正的window，暴露给开发者一个“存在的”window**。我们可以**认为**PhoneWindow就是一个window，window是view容器。当我们需要在屏幕上添加view的时候，只需要获得应用window对应的windowManagerImpl，然后直接调用addView方法添加view即可。这里也可以解释为什么windowManager的接口方法是addView而不是addWindow，一个是window确实是以view的存在形式没错，二是为了向开发者屏蔽真正的window，让我们以为是在往window中添加view。画个图如下：
 
 <img src="https://s1.ax1x.com/2020/08/31/dOq4vd.png" alt="window整体结构" border="0" width=60%/>
 
 黄色部分输于谷歌提供给开发者的window框架，而绿色是真正的window机制结构。通过谷歌的框架我们可以很方便地管理屏幕上的view，而不须了解底层究竟是如何工作的。PhoneWindow的存在，更是让window的“可见性”得到了实现，让window变成了一个“view容器”。
+
+第二，PhoneWindow可以限制不同的context有不同的UI显示能力。AMS会给Activity发送一个token，而最终这个token会保存在PhoneWindow中，只有拥有这个token的PhoneWindow才能显示界面。而其他如Service、Application是没有token的，也就无法显示界面。详细内容有兴趣可以阅读[window的token验证](https://blog.csdn.net/weixin_43766753/article/details/109060496)。
 
 ---
 
