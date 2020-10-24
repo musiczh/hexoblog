@@ -1,6 +1,6 @@
 ---
 
-title:  	#标题
+title: Android全面解析之Handler机制  	#标题
 date: 2020/10/8 00:00:00 	#建立日期
 updated: 					#更新日期
 tags: 						#标签
@@ -42,6 +42,11 @@ highlight_shrink: true       #代码框是否打开
 2. 第二部分是在对Handler有一定的认知基础上，对各个类进行详细的讲解和源码分析。
 3. 第三部分是整体的流程分析以及常见问题的解析。
 4. 最后一部分是Android对于消息机制设计的讲解以及全文总结。
+
+> 文章基本涵盖了关于Handler相关的知识，因而篇幅也比较长
+> 考虑过把文章分割成几篇小文章，考虑到阅读的整体性以及方便性，最终还是集成了一篇大文章
+> 文章成体系，全面地讲解知识点，而不是把知识碎片化，否则很难真正去理解单一的知识，更不易于对整体知识的把握
+> 读者可自行选择感兴趣的章节阅读
 
 那么，我们开始吧。
 
@@ -317,7 +322,7 @@ private void set(ThreadLocal<?> key, Object value) {
 
 这里的逻辑和HashMap是很像的，我们可以直接使用HashMap的思维来理解ThreadLocalMap:ThreadLocalMap的key是ThreadLocal，value是ThreadLocal对应的泛型。他的存储步骤如下：
 
-1. 根据自身的threadLocalHashCode与数组的长度进行相与等到下标
+1. 根据自身的threadLocalHashCode与数组的长度进行相与得到下标
 2. 如果此下标为空，则直接插入
 3. 如果此下标已经有元素，则判断两者的ThreadLocal是否相同，相同则更新value后返回，否则找下一个下标
 4. 直到找到合适的位置把entry对象插入
