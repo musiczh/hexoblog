@@ -41,24 +41,13 @@ Window，读者可能更多的认识是windows系统的窗口。在windows系统
 
 当然不是。Android框架层意义上的window和我们认识的window其实是有点不一样的。我们日常最直观的，每个应用界面，都有一个应用级的window。再例如popupWindow、Toast、dialog、menu都是需要通过创建window来实现。所以其实window我们一直都见到，只是不知道那就是window。了解window的机制原理，可以更好地了解window，进而更好地了解android是怎么管理屏幕上的view。这样，当我们需要使用dialog或者popupWindow的时候，可以懂得他背后究竟做了什么，才能够更好的运用dialog、popupWindow等。
 
-当然，到此如果你有很多的疑问，甚至质疑我的理论，那就希望你可以阅读完这一篇文章。我会从window是什么，有什么用，内部机制是什么，各种组件是如何创建window等等方面来阐述Android中的window。文章内容非常多，读者可自选章节阅读。强烈建议阅读【window的概念】【window与PhoneWindow的关系】【从Android架构看window】这三章，会对window的本质有更清晰的认识。
-
-本文大纲：
-
-<img src="https://s1.ax1x.com/2020/09/01/dxLpI1.png" alt="本文大纲" border="0" width=80%/>
-
-> 笔者才疏学浅，有不同观点欢迎评论区或私信讨论。如需转载请留言告知。
-> 另外欢迎阅读笔者的个人博客[一只修仙的猿的个人博客](https://qwerhuan.gitee.io/)，更精美的UI，拥有更好的阅读体验。
+当然，到此如果你有很多的疑问，甚至质疑我的理论，那就希望你可以阅读完这一篇文章。我会从window是什么，有什么用，内部机制是什么，各种组件是如何创建window等等方面来阐述Android中的window。文章内容非常多，读者可自选章节阅读。
 
 
 
-----
+## 什么是window机制
 
-
-
-## window的概念
-
-windowowindow，先假设如果没有window，会发生什么：
+先假设如果没有window，会发生什么：
 
 我们看到的界面ui是view，如我们的应用布局，更简单是一个button。假如屏幕上现在有一个Button，如图1，现在往屏幕中间添加一个TextView，那么最终的结果是图2，还是图3：
 
@@ -66,11 +55,15 @@ windowowindow，先假设如果没有window，会发生什么：
 
 在上图的图2中，如果我要实现点击textView执行他的监听事件逻辑，点击不是textView的区域让textView消失，需要怎么实现呢？读者可能会说，我们可以在Activity中添加这部分的逻辑，那如果我们需要让一个悬浮窗在所有界面显示呢，如上文我讲到的小米悬浮窗，两个不用应用的view，怎么确定他们的显示次序？又例如我们需要弹出一个dialog来提示用户，怎么样可以让dialog永远处于最顶层呢，包括显示dialog期间应用弹出的如popupWindow必须显示在dialog的低下，但toast又必须显示在dialog上面。
 
-很明显，我们的屏幕可以允许多个应用同时显示非常多的view，他们的显示次序或者说显示高度是不一样的，如果没有一个统一的管理者，那么每一家应用都想要显示在最顶层，那么屏幕上的view会非常乱，这时候急需一个管理者来统一管理view的显示以及接受触摸事件的逻辑，这个管理者，就是整个Android的window机制。
+很明显，我们的屏幕可以允许多个应用同时显示非常多的view，他们的显示次序或者说显示高度是不一样的，如果没有一个统一的管理者，那么每一家应用都想要显示在最顶层，那么屏幕上的view会非常乱。
 
-> **window机制就是为了解决屏幕上的view的显示逻辑问题。**
+同时，当我们点击屏幕时，这个触摸事件应该传给哪个view？很明显我们都知道应该传给最上层的view，但是接受事件的是屏幕，是另一个系统服务，他怎么知道触摸位置的最上层是哪个view呢？即时知道，他又怎么把这个事件准确地传给他呢？
 
----
+为了解决等等这些问题，急需有一个管理者来统一管理屏幕上的显示的view，才能让程序有条不紊地走下去。而这，就是Android中的window机制。
+
+> **window机制就是为了管理屏幕上的view的显示以及触摸事件的传递问题。**
+
+## 什么是window?
 
 那什么是window，在Android的window机制中，每个view树都可以看成一个window。为什么不是每个view呢？因为view树中每个view的显示次序是固定的，例如我们的Activity布局，每一个控件的显示都是已经安排好的，对于window机制来说，属于“不可再分割的view”。
 
@@ -93,19 +86,7 @@ window本身并不存在，他只是一个概念。举个栗子：如班集体�
 > - view是window的存在形式，window是view的载体
 > - window是view的管理者，同时也是view的载体。他是一个抽象的概念，本身并不存在，view是window的表现形式
 
----
-
-最后做一个总结：
-
-> - window机制是为了解决屏幕上view的显示混乱问题，让所有view都按照秩序来显示，满足我们的开发需求
-> - window是window机制中的操作单位，每个window对应一个view。
-> - window本身并不存在，他是一个抽象的概念，他的存在形式是view，每个view的当前状态保存在WindowManagerService中的windowStatus
-
 思考：Android中不是有一个抽象类叫做window还有一个PhoneWindow实现类吗，他们不就是window的存在形式，为什么说window是抽象不存在的？读者可自行思考，后面会讲到。
-
-
-
----
 
 
 
@@ -365,59 +346,13 @@ getWindow().flags = WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 
 
------
-
-
-
-## window机制的关键类
-
-从这里开始就要开始讲window的内部机制，首先我们需要了解一下window里面的那些关键的类和接口，当然首先我们要了解一下window的内部机制中有哪些角色：
-
-#### window相关
-
-window的实现类只有一个：PhoneWindow，他继承自Window抽象类。后面我们经常见到他。
-
-#### WindowManager相关
-
-顾名思义，windowManager就是window管理类。这一部分的关键类有windowManager，viewManager，windowManagerImpl，windowManagerGlobal。windowManager是一个接口，继承自viewManager。viewManager中包含了我们非常熟悉的三个接口：`addView,removeView,updateView`。
-windowManagerImpl和PhoneWindow是成对出现的，前者负责管理后者。WindowManagerImpl是windowManager的实现类，但是他本身并没有真正实现逻辑，而是交给了WindowManagerGlobal。WindowManagerGlobal是全局单例，windowManagerImpl内部使用桥接模式，他是windowManager接口逻辑的真正实现
-
-#### view相关
-
-这里有个很关键的类：ViewRootImpl。每个view树都会有一个。当我使用windowManager的addView方法时，就会创建一个ViewRootImpl。ViewRootImpl的作用很关键：
-
-- 负责连接view和window的桥梁事务
-- 负责和WindowManagerService的联系
-- 负责管理和绘制view树
-- 输入事件的中转站
-
-每个window都会有一个ViewRootImpl，viewRootImpl是负责绘制这个view树和window与view的桥梁，每个window都会有一个ViewRootImpl。如果这里对他的这些功能不太理解，没事，只要记住这个类就好了，后面会讲到。
-
-#### WindowManagerService
-
-这个是window的真正管理者，类似于AMS（ActivityManagerService）管理四大组件。所有的window创建最终都要经过windowManagerService。整个Android的window机制中，WMS绝对是核心，他决定了屏幕所有的window该如何显示如何处理点击事件。
-
----
-
-#### 总结
-
-好了，看了上面那么多的类，可能有点感觉眼花缭乱，画个图帮助理解一下：（注意里面绿色的window不是关键类，只是为了方便理解画进去了）
-
-<img src="https://s1.ax1x.com/2020/08/26/dfGICn.png" alt="window内部关键类" border="0" width=70%/>
-
-> PhoneWindow是窗口类，继承自抽象类Window，也是唯一子类。WindowManager是Window管理接口，继承自ViewManager，他的唯一实现类是WindowManagerImpl。WindowManagerImpl并没有真正实现windowManager接口逻辑，而是把逻辑转给了WindowManagerGlobal，WindowManagerGlobal是全局单例。Window和View的联系通过ViewRootImpl桥梁，同时ViewRootImpl还负责管理view树、绘制view树、和WMS通信。WMS即WindowManagerService，是Window的真正管理类。
-
-了解完上面的一些关键类，可能读者对于他们的功能还是一头雾水，没关系，下面我将通过源码来讲解，很快你就可以理解了。到时候可以再次回头来看一下，就更加融会贯通了。
-
-
-
 ---
 
 
 
 ## Window的添加过程
 
-通过理解源码之后，可以对之前的理论理解更加的透彻，同时也是对上一小节的讲解。window的添加过程，指的是我们通过WindowManagerImpl的addView方法来添加window的过程。window的存在形式是view也可以从这个方法名字看出来，添加window即为添加view。
+通过理解源码之后，可以对之前的理论理解更加的透彻。window的添加过程，指的是我们通过WindowManagerImpl的addView方法来添加window的过程。
 
 想要添加一个window，我们知道首先得有view和WindowManager.LayoutParams对象，才能去创建一个window，这是我们常见的代码：
 
@@ -440,7 +375,7 @@ public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) 
 }
 ```
 
-可以发现他把逻辑直接交给mGlobal去处理了。这个mGlobal是啥？有印象的读者就会知道他是WindowManagerGlobal，是一个全局单例，所以这里可以看到WindowManagerGlobal确实是WindowManager接口的具体逻辑实现，这里运用的是桥接模式。那我们进WindowManagerGlobal的方法看一下：
+可以发现他把逻辑直接交给mGlobal去处理了。这个mGlobal是WindowManagerGlobal，是一个全局单例，是WindowManager接口的具体逻辑实现。这里运用的是桥接模式。那我们进WindowManagerGlobal的方法看一下：
 
 ```java
 public void addView(View view, ViewGroup.LayoutParams params,
@@ -570,7 +505,7 @@ viewRootImpl的逻辑很多，重要的就是调用了mWindowSession的方法调
 
 我们知道windowManager接口是继承viewManager接口的，viewManager还有另外两个接口：removeView、updateView。这里就不讲了，有兴趣的读者可以自己去阅读源码。讲添加流程主要是为了理解window系统的运作，对内部的流程感知，以便于更好的理解window。
 
-最后老样子，做个总结：
+最后做个总结：
 
 > window的添加过程是通过PhoneWindow对应的WindowManagerImpl来添加window，内部会调用WindowManagerGlobal来实现。WindowManagerGlobal会使用viewRootImpl来进行跨进程通信让WMS执行创建window的业务。
 >
@@ -578,7 +513,39 @@ viewRootImpl的逻辑很多，重要的就是调用了mWindowSession的方法调
 
 
 
-----
+## window机制的关键类
+
+前面的源码流程中涉及到很多的类，这里把相关的类统一分析一下。先看一张图：
+
+<img src="https://s1.ax1x.com/2020/08/26/dfGICn.png" alt="window内部关键类" border="0" width=650/>
+
+这基本上是我们这篇文章涉及到的所有关键类。且听我慢慢讲。（图中绿色的window并不是一个类，而是真正意义上的window）
+
+#### window相关
+
+window的实现类只有一个：PhoneWindow，他继承自Window抽象类。后面我会重点分析他。
+
+#### WindowManager相关
+
+顾名思义，windowManager就是window管理类。这一部分的关键类有windowManager，viewManager，windowManagerImpl，windowManagerGlobal。windowManager是一个接口，继承自viewManager。viewManager中包含了我们非常熟悉的三个接口：`addView,removeView,updateView`。
+windowManagerImpl和PhoneWindow是成对出现的，前者负责管理后者。WindowManagerImpl是windowManager的实现类，但是他本身并没有真正实现逻辑，而是交给了WindowManagerGlobal。WindowManagerGlobal是全局单例，windowManagerImpl内部使用桥接模式，他是windowManager接口逻辑的真正实现
+
+#### view相关
+
+这里有个很关键的类：ViewRootImpl。每个view树都会有一个。当我使用windowManager的addView方法时，就会创建一个ViewRootImpl。ViewRootImpl的作用很关键：
+
+- 负责连接view和window的桥梁事务
+- 负责和WindowManagerService的联系
+- 负责管理和绘制view树
+- 事件的中转站
+
+每个window都会有一个ViewRootImpl，viewRootImpl是负责绘制这个view树和window与view的桥梁，每个window都会有一个ViewRootImpl。
+
+#### WindowManagerService
+
+这个是window的真正管理者，类似于AMS（ActivityManagerService）管理四大组件。所有的window创建最终都要经过windowManagerService。整个Android的window机制中，WMS绝对是核心，他决定了屏幕所有的window该如何显示如何分发点击事件等等。
+
+
 
 
 
@@ -595,8 +562,6 @@ viewRootImpl的逻辑很多，重要的就是调用了mWindowSession的方法调
 - 有一些资料认为PhoneWindow就是window，是view容器，负责管理容器内的view，windowManagerImpl可以往里面添加view，如上面我们讲过的addView方法。但是，同时它又说每个window对应一个viewRootImpl，但却没解释为什么每次addView都会新建一个viewRootImpl，前后发送矛盾。
 - 有一些资料也是认为PhoneWindow是window，但是他说addView方法不是添加view而是添加window，同时拿这个方法的名字作为论据证明view就是window，但是他没解释为什么在使用addView方法创建window的过程却没有创建PhoneWindow对象。
 
----
-
 我们一步步来看。我们首先来看一下源码中对于window抽象类的注释：
 
 ```java
@@ -611,32 +576,26 @@ viewRootImpl的逻辑很多，重要的就是调用了mWindowSession的方法调
 
 大概意思就是：这个类是顶级窗口的抽象基类，顶级窗口必须继承他，他负责窗口的外观如背景、标题、默认按键处理等。这个类的实例被添加到windowManager中，让windowManager对他进行管理。PhoneWindow是一个top-level window（顶级窗口），他被添加到顶级窗口管理器的顶层视图，其他的window，都需要添加到这个顶层视图中，所以更准确的来说，**PhoneWindow并不是view容器，而是window容器。**
 
-每一个PhoneWindow都有一个WindowManagerImpl对象，他们是成对出现的。当我们调用windowManagerImpl来添加window的时候，其实就是往PhoneWindow中添加window。WindowManagerImpl是利用应用服务中的windowManagerImpl来进行创建的，看似每个PhoneWindow都有一个WindowManagerImpl，但是他的内部其实是同个WindowManagerImpl（后面在讲Activity的window创建流程会讲到）。
+那PhoneWindow的存在意义是什么？
 
-**PhoneWindow不是Android的window机制中的window概念，他只是在应用端的一个window容器**。那PhoneWindow的存在意义是什么？
+第一、提供DecorView模板。如下图：
 
----
+<img src="https://s1.ax1x.com/2020/08/31/dOqQ3Q.png"  border="0" width=30%/>
 
-每一个view树，无论你点击哪个控件，都可以追溯到根部，有一个统一管理事件的中心：viewRootImpl，他负责把事件统一发送到合理的地方。但是如果是不同的view树，就无法追溯到统一根源，无法统一处理事件。Activity可能有很多的view树，例如popupWindow，menu，那这个时候怎么让他们有一个统一的处理事件根源呢？没错就是PhoneWindow。所有通过PhoneWindow对应的WindowManagerImpl添加的window都要接受PhoneWindow的管理，我们可以通过WindowManagerImpl往PhoneWindow中添加子window。这样所有的点击事件等就可以直接交给PhoneWindow，然后PhoneWindow再把事件交给Activity统一处理。这样，Activity就可以把属于自己应用的window当成一棵“view树”，可以管理到所有属于他的window。如下图：
+我们的Activity是通过setContentView把布局设置到DecorView中，那么DecorView本身的布局，就成为了Activity界面的背景。同时DecorView是分为标题栏和内容两部分，所以也可以可界面设置标题栏。同时，由于我们的界面是添加在的DecorView中，属于DecorView的一部分。那么对于DecorView的window属性设置也会对我们的布局界面生效。还记得谷歌的官方给window类注释的最后一句话吗：`它提供标准的UI策略，如背景、标题区域、默认键处理等。`这些都可以通过DecorView实现，这是PhoneWindow的第一个作用。
 
-<img src="https://s1.ax1x.com/2020/08/26/dfE5VK.png" alt="PhoneWindow关系图" border="0" width=60%/>
+第二、抽离Activity中关于window的逻辑。Activity的职责非常多，如果所有的事情都自己做，那么会造成本身代码极其臃肿。阅读过Activity启动的读者可能知道，AMS也通过ActivityStarter这个类来抽离启动Activity启动的逻辑。这样关于window相关的事情，就交给PhoneWindow去处理了。（事实上，Activity调用的是WindowManagerImpl，但因PhoneWindow和WindowManagerImpl两者是成对存在，他们共同处理window相关的事务，所以这里就简单写成交给PhoneWindow处理。）当Activity需要添加界面时，只需要一句setContentView，调用了PhoneWindow的setContentView方法，就把布局设置到屏幕上了。具体怎么完成，Activity不必管。
 
-同时，Activity可以给PhoneWindow设置属性，他会按照一定的逻辑给PhoneWindow中的window设置属性。还记得谷歌的官方给window类注释的最后一句话吗：`它提供标准的UI策略，如背景、标题区域、默认键处理等。`。给PhoneWindow设置的属性很多，最常见的有背景、软键盘模式、状态栏区域的延伸等等，他的内部会配合DecorView来实现我们日常的一些开发需求（后面会讲到DecorView），封装成API供我们使用。PhoneWindow的层级结构如下：
+第三、限制组件添加window的权限。PhoneWindow内部有一个token属性，用于验证一个PhoneWindow是否允许添加window。在Activity创建PhoneWindow的时候，就会把从AMS传过来的token赋值给他，从而他也就有了添加token的权限。而其他的PhoneWindow则没有这个权限，因而也无法添加window。这部分内容我在另一篇文章有详细讲解，感兴趣的读者可以前往了解一下[传送门](https://blog.csdn.net/weixin_43766753/article/details/109060496)。
 
-<img src="https://s1.ax1x.com/2020/08/31/dOqQ3Q.png" alt="dOqQ3Q.png" border="0" width=30%/>
-
-PhoneWindow利用DecorView，实现给contentView添加背景，设置标题区域等等功能。而**真正的window是没有背景、标题栏等这一说的**。真正的window只是一个抽象的概念，他本身并不存在，PhoneWindow是利用DecorView才实现了这些功能。读者需要区分好这两者的关系。
-
-这里我就我不深入讲PhoneWindow了，我们侧重点是讲PhoneWindow与window的关系，有兴趣的读者可以自行研究一下。
-
-----
+当然，PhoneWindow的作用肯定远不止如此，这里列出很重要的三条，也是笔者目前学习到的三个最重要的作用。官方对于一个类的设计的考虑肯定是非常多，不是笔者简单的分析所能阐述，而只是给出一个新的思考方向，带大家认识真正的window。
 
 总结一下：
 
-> - PhoneWindow本身不是window，他是一个window容器，统一管理其中的window
-> - windowManagerImpl并不是管理window的类，而是管理PhoneWindow的类
-> - PhoneWindow的作用是协作Activity等需要管理多个window的工具类，让这些window拥有统一的事件处理源，
+> - PhoneWindow本身不是真正意义上的window，他更多可以认为是辅助Activity操作window的工具类。
+> - windowManagerImpl并不是管理window的类，而是管理PhoneWindow的类。真正管理window的是WMS。
 > - PhoneWindow可以配合DecorView可以给其中的window按照一定的逻辑提供标准的UI策略
+> - PhoneWindow限制了不同的组件添加window的权限。
 
 
 
@@ -891,7 +850,7 @@ void makeVisible() {
 > - 创建PhoneWindow -> 创建WindowManager -> 创建decorView -> 利用windowManager把DecorView显示到屏幕上
 > - 回调onResume方法的时候，DecorView还没有被添加到屏幕，所以当onResume被回调，指的是屏幕即将到显示，而不是已经显示
 
----
+
 
 #### PopupWindow
 
@@ -954,9 +913,9 @@ public void showAtLocation(IBinder token, int gravity, int x, int y) {
 
 这个方法的逻辑主要有：
 
-- 判断contentView是否为空或者是否呀进行显示
+- 判断contentView是否为空或者是否进行显示
 - 做一些准备工作
-- 行popupWindow显示工作
+- 进行popupWindow显示工作
 
 ---
 
@@ -1002,11 +961,11 @@ private void invokePopup(WindowManager.LayoutParams p) {
 > - 根据参数构建popupDecorView
 > - 把popupDecorView添加到屏幕上
 
----
+
 
 #### Dialog
 
-dialog的创建过程和popupWindow是大同小异的：创建PhoneWindow，初始化DecorView，添加DecorView。我这里就简单讲解一下。首先看到他的构造方法：
+dialog的创建过程Activity比较像：创建PhoneWindow，初始化DecorView，添加DecorView。我这里就简单讲解一下。首先看到他的构造方法：
 
 ```java
 Dialog(@NonNull Context context, @StyleRes int themeResId, boolean createContextThemeWrapper) {
@@ -1074,14 +1033,9 @@ public void show() {
 
 总结一下：
 
-> - dialog和popupWindow不同，dialog创建了新的PhoneWindow，他是独立在Activity之外的window
-> - popupWindow需要依赖于activity，这是两者的本质区别
-> - dialog会直接显示在Activity上面，而popUpWindow则不会，后来的新添加view会覆盖在popupWindow上
-> - dialog的创建流程和activity几乎是一样的
-
-
-
----
+> - dialog和popupWindow不同，dialog创建了新的PhoneWindow，使用了PhoneWindow的DecorView模板。而popupWindow没有
+> - dialog的显示层级数更高，会直接显示在Activity上面，在dialog后添加的popUpWindow也会显示在dialog下
+> - dialog的创建流程和activity非常像
 
 
 
@@ -1107,15 +1061,13 @@ windowManagerGlobal使用自己的IWindowSession创建viewRootImpl，这个IWind
 
 从上面的描述中可以发现我全程没有提及到PhoneWindow和WindowManagerImpl。这是因为**他们不属于window机制内的类，而是封装于window机制之上的框架**。假设如果没有PhoneWindow和WindowManager我们该如何添加一个window？首先需要调用WindowGlobal获取session，再创建viewRootImpl，再访问wms，然后再利用viewRootImpl绘制view，是不是很复杂，而这仅仅只是整体的步骤。而WindowManagerImpl正是这个功能。他内部拥有WindowManagerGlobal的单例，然后帮助我们完成了这一系列的步骤。同时，**windowManagerImpl也是只有一个实例，其他的windowManagerImpl都是建立在windowManagerImpl单例上**。这一点在前面有通过源码介绍到。
 
-另外，上面我讲到PhoneWindow并不是window而是一个window容器，那为什么他不要命名为windowContainer呢？首先，PhoneWindow这个类是谷歌给window机制进行更上一层的封装。PhoneWindow内部拥有一个DecorView，我们的布局view都是添加到decorView中的，因为我们可以通过给decorView设置背景，宽高度，标题栏，按键反馈等等，来间接给我们的布局view设置。当我们通过windowManagrImpl添加window的时候，都会把创建的window和PhoneWindow联系起来，让PhoneWindow可以统一处理通过windowManagerImpl添加的window，这点上面有讲到。这样一来，PhoneWindow的存在，**向开发者屏蔽真正的window，暴露给开发者一个“存在的”window**。我们可以**认为**PhoneWindow就是一个window，window是view容器。当我们需要在屏幕上添加view的时候，只需要获得应用window对应的windowManagerImpl，然后直接调用addView方法添加view即可。这里也可以解释为什么windowManager的接口方法是addView而不是addWindow，一个是window确实是以view的存在形式没错，二是为了向开发者屏蔽真正的window，让我们以为是在往window中添加view。画个图如下：
+另外，上面我讲到PhoneWindow并不是window而是一个辅助Activity管理的工具类，那为什么他不要命名为windowUtils呢？首先，PhoneWindow这个类是谷歌给window机制进行更上一层的封装。PhoneWindow内部拥有一个DecorView，我们的布局view都是添加到decorView中的，因为我们可以通过给decorView设置背景，宽高度，标题栏，按键反馈等等，来间接给我们的布局view设置。这样一来，PhoneWindow的存在，**向开发者屏蔽真正的window，暴露给开发者一个“存在的”window**。我们可以**认为**PhoneWindow就是一个window，window是view容器。当我们需要在屏幕上添加view的时候，只需要获得应用window对应的windowManagerImpl，然后直接调用addView方法添加view即可。这里也可以解释为什么windowManager的接口方法是addView而不是addWindow，一是window确实是以view的存在形式没错，二是为了向开发者屏蔽真正的window，让我们以为是在往window中添加view，window是真实存在的东西。他们的关系画个图如下：
 
-<img src="https://s1.ax1x.com/2020/08/31/dOq4vd.png" alt="window整体结构" border="0" width=60%/>
+<img src="https://s1.ax1x.com/2020/08/31/dOq4vd.png" alt="window整体结构" border="0" width=500/>
 
-黄色部分输于谷歌提供给开发者的window框架，而绿色是真正的window机制结构。通过谷歌的框架我们可以很方便地管理屏幕上的view，而不须了解底层究竟是如何工作的。PhoneWindow的存在，更是让window的“可见性”得到了实现，让window变成了一个“view容器”。
+黄色部分输于谷歌提供给开发者的window框架，而绿色是真正的window机制结构。通过PhoneWindow我们可以很方便地进行window操作，而不须了解底层究竟是如何工作的。PhoneWindow的存在，更是让window的“可见性”得到了实现，让window变成了一个“view容器”。
 
-第二，PhoneWindow可以限制不同的context有不同的UI显示能力。AMS会给Activity发送一个token，而最终这个token会保存在PhoneWindow中，只有拥有这个token的PhoneWindow才能显示界面。而其他如Service、Application是没有token的，也就无法显示界面。详细内容有兴趣可以阅读[window的token验证](https://blog.csdn.net/weixin_43766753/article/details/109060496)。
 
----
 
 好了最后来总结一下：
 
@@ -1123,10 +1075,6 @@ windowManagerGlobal使用自己的IWindowSession创建viewRootImpl，这个IWind
 > - dialog、popupWindow等框架更是对具体场景进行更进一步的封装。
 > - 我们在了解window机制的时候，需要跳过应用层，看到window的本质，才能更好地帮助我们理解window。
 > - 在android的其他地方也是一样，利用封装向开发者屏蔽底层逻辑，让我们更好地运用。但如果我们需要了解他的机制的时候，就需要绕过这层封装，看到本质。
-
-
-
-----
 
 
 
@@ -1140,7 +1088,7 @@ windowManagerGlobal使用自己的IWindowSession创建viewRootImpl，这个IWind
 > - 从源码讲解window的添加流程以及各大组件的window添加流程
 > - 详解了PhoneWindow与window的关系，谈了关于谷歌的封装思想
 
-文中最重要的一点就是认识window的本质，区分好window和view之间的关系。为什么window可以设置背景设置标题栏设置宽高？那是因为有PhoneWindow的存在。读者需要区分好window与PhoneWindow的关系。
+文中最重要的一点就是认识window的本质，区分好window和view之间的关系以及window与PhoneWindow的关系。
 
 笔者在写这篇文章的时候，对于各节的安排是比较犹豫的：如果先讲概念，没有源码流程的讲解很难懂；先讲源码流程，没有概念的认知很难读懂源码。最终还是决定了先讲window的真正概念，先让读者有个整体上的感知。
 
@@ -1152,13 +1100,9 @@ windowManagerGlobal使用自己的IWindowSession创建viewRootImpl，这个IWind
 >
 >原创不易，觉得有帮助可以点赞收藏评论转发关注。
 >笔者才疏学浅，有任何错误欢迎评论区或私信交流。
->如需转载请私信交流。
+>如需转载请私信或评论区交流。
 >
 >另外欢迎光临笔者的个人博客：[传送门](https://qwerhuan.gitee.io)
-
-
-
-----
 
 
 

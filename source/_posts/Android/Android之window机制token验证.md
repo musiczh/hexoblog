@@ -512,11 +512,7 @@ void adjustLayoutParamsForSubWindow(WindowManager.LayoutParams wp) {
 }
 ```
 
-当我们使用Activity来添加dialog的时候，此时Activity的DecorView已经是添加到屏幕上了，也就是我们的Activity是有界面了，这个情况下，他就是属于子窗口的类型被添加到PhoneWindow中，而他的token就是DecorView的token，此时DecorView已经被添加到屏幕上，他本身是拥有token的；
-
-> 这里补充一点。当一个view（view树）被添加到屏幕上后，他所对应的viewRootImpl有一个token对象，这个token来自WindowManagerGlobal，他是一个IWindowSession 对象。从源码中可以看到，当我们的PhoneWindow的DecorView展示到屏幕后，后续添加的子window的token，就都是这个IWindowSession 对象了。
-
-而如果是第一次添加，也就是应用界面，那么他的token就是Activity初始化传入的token。
+当我们使用Activity来添加dialog的时候，Activity本身是带有token的，Dialog是属于应用级窗口（至于为什么读者可以前往dialog的show方法中跟踪源码），他的window层级数是2，而Activity的界面是1，所以他会显示在Activity之上。而因为这里Dialog是应用级窗口，所以他最终就拿到了Activity的token。
 
 但是如果使用的是Application，因为它内部并没有token，那么这里获取到的token就是null，后面到WMS也就会抛出异常了。而这也就是为什么使用Activity可以弹出Dialog而Application不可以的原因。因为受到了token的限制。
 
