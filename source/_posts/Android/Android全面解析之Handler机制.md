@@ -992,7 +992,7 @@ thread.mHandler.sendMessage(Message.obtain())
 
 <img src="https://s1.ax1x.com/2020/10/08/00tQns.png" alt="00tQns.png" border="0" />
 
-Handler还未初始化。Looper初始化是需要一定的时间，就导致了这个问题，那简单，等待一下就可以了，上代码：
+Handler还未初始化。线程的启动需要一定的时间，就导致了这个问题，那简单，等待一下就可以了，上代码：
 
 ```kotlin
 val thread = object : Thread(){
