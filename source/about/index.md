@@ -11,8 +11,19 @@ top_img: "/media/banner/7.jpg"
 欢迎通过联系方式来交流。
 
 - [掘金](https://juejin.cn/user/3931509313252552)
+
 - [CSDN](https://blog.csdn.net/weixin_43766753)
+
+- [博客园](https://www.cnblogs.com/huan89/)
+
+- [知乎](https://www.zhihu.com/people/xlda-fa/posts)
+
 - [思否](https://segmentfault.com/u/yizhixiuxiandeyuan)
+
 - [简书](https://www.jianshu.com/u/f313ed2976d1)
+
+  
+
 - qq: 172802065
+
 - 邮箱：172802065@qq.com
