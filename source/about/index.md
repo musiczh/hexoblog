@@ -16,10 +16,6 @@ top_img: "/media/banner/7.jpg"
 
 - [博客园](https://www.cnblogs.com/huan89/)
 
-- [知乎](https://www.zhihu.com/people/xlda-fa/posts)
-
-- [思否](https://segmentfault.com/u/yizhixiuxiandeyuan)
-
 - [简书](https://www.jianshu.com/u/f313ed2976d1)
 
   
@@ -27,3 +23,8 @@ top_img: "/media/banner/7.jpg"
 - qq: 172802065
 
 - 邮箱：172802065@qq.com
+
+如果文章对你有帮助，也可以请作者喝杯茶~
+
+<img src="https://i.loli.net/2021/01/26/o4Li76kFOSvneTP.png" alt="微信" style="zoom: 16%;" />
+

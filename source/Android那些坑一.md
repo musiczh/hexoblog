@@ -1,0 +1,45 @@
+---
+title: 	Android那些坑一		#标题
+date: 2020/8/1 00:00:00 						#建立日期
+sticky:  #置顶参数
+tags:	#标签
+ - 
+					
+categories:	#分类
+ - 
+
+updated: 					#更新日期
+author: 一只修仙的猿 #作者
+toc: true	#是否显示toc
+mathjax:  #数学公式
+
+keywords:				#关键词
+description:				#文章描述
+top_img:					#文章顶部照片
+comments: true				#是否显示评论模块
+cover:						#文章缩略图
+toc_number: true			#是否显示toc_number
+auto_open: true				#是否自动打开toc
+copyright: true					#显示文章版权模块
+copyright_author: 一只修仙的猿		#文章版权作者
+copyright_author_href: 			#文章版权作者链接
+copyright_url:						#文章版权文章链接
+copyright_info:						#文章版权声明文字
+
+katex:
+aplayer:
+highlight_shrink: true       #代码框是否打开
+---
+
+
+
+
+
+
+
+> 全文到此，原创不易，觉得有帮助可以点赞收藏评论转发。
+> 笔者才疏学浅，有任何想法欢迎评论区交流指正。
+> 如需转载请评论区或私信交流。
+>
+> 另外欢迎光临笔者的个人博客：[传送门](https://qwerhuan.gitee.io)
+
