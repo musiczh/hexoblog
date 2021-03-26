@@ -33,8 +33,6 @@ highlight_shrink: true       #代码框是否打开
 
 ---
 
-
-
 ## 前言
 
 很高兴遇见你~
@@ -45,7 +43,7 @@ HashMap本质上是一个散列表，那么就离不开散列表的三大问题�
 
 HashMap属于Map集合体系的一部分，同时继承了Serializable接口可以被序列化，继承了Cloneable接口可以被复制。他的的继承结构如下：
 
-![](https://img-blog.csdnimg.cn/img_convert/58436ea26caf0e20e7f14cb4d2fa8fb7.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/92141b8d31e74f45bf0cfbb9a18b1c60~tplv-k3u1fbpfcp-zoom-1.image)
 
 HashMap并不是全能的，对于一些特殊的情景下的需求官方拓展了一些其他的类来满足，如线程安全的ConcurrentHashMap、记录插入顺序的LinkHashMap、给key排序的TreeMap等。
 
@@ -80,7 +78,7 @@ static final int hash(Object key) {
 
 对hashcode扰动之后需要对结果进行取模。HashMap在jdk1.8并不是简单使用`%`进行取模，而是采用了另外一种更加高性能的方法。HashMap控制数组长度为2的整数次幂，好处是对hashcode进行求余运算和让hashcode与数组长度-1进行位与运算是相同的效果。如下图：
 
-![](https://i.loli.net/2020/12/03/S16Rc4fN8ynCPgL.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/111c08b5f9f64b4787dc40dd98654303~tplv-k3u1fbpfcp-zoom-1.image)
 
 但位与运算的效率却比求余高得多，从而提升了性能。在扩容运算中也利用到了此特性，后面会讲。取模运算的源码看到`putVal()`方法，该方法在`put()`方法中被调用：
 
@@ -96,7 +94,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 完整的hash计算过程可以参考下图：
 
-![](https://i.loli.net/2020/12/03/xN9VvrpT3PcqlC4.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/89ca3ff7b58344d08c7c59bf7d1710fe~tplv-k3u1fbpfcp-zoom-1.image)
 
 上面我们提到HashMap的数组长度为2的整数次幂，那么HashMap是如何控制数组的长度为2的整数次幂的？修改数组长度有两种情况：
 
@@ -127,7 +125,7 @@ static final int tableSizeFor(int cap) {
 
 `tableSizeFor()`方法的看起来很复杂，作用是使得最高位1后续的所有位都变为1，最后再+1则得到刚好大于initialCapacity的最小2的整数次幂数。如下图（这里使用了8位进行模拟，32位也是同理）：
 
-![](https://i.loli.net/2020/12/03/6ARdnmVx2BlgDtr.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/55fa344e54d44941be0544e19e443820~tplv-k3u1fbpfcp-zoom-1.image)
 
 那为什么必须要对`cap`进行`-1`之后再进行运算呢？如果指定的数刚好是2的整数次幂，如果没有-1结果会变成比他大两倍的数，如下：
 
@@ -162,7 +160,7 @@ final Node<K,V>[] resize() {
 
 再优秀的hash算法永远无法避免出现hash冲突。hash冲突指的是两个不同的key经过hash计算之后得到的数组下标是相同的。解决hash冲突的方式很多，如开放定址法、再哈希法、公共溢出表法、链地址法。HashMap采用的是链地址法，jdk1.8之后还增加了红黑树的优化，如下图：
 
-![](https://i.loli.net/2020/12/03/Lvy6hTMIlbYakuC.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1b84bce62a9d49639bfcd47672c88ba8~tplv-k3u1fbpfcp-zoom-1.image)
 
 出现冲突后会在当前节点形成链表，而当链表过长之后，会自动转化成红黑树提高查找效率。红黑树是一个查找效率很高的数据结构，时间复杂度为O(logN)，但红黑树只有在数据量较大时才能发挥它的优势。关于红黑树的转化，HashMap做了以下限制
 
@@ -199,7 +197,7 @@ final Node<K,V>[] resize() {
 
 JDK1.7之前的数据迁移比较简单，就是遍历所有的节点，把所有的节点依次通过hash函数计算新的下标，再插入到新数组的链表中。这样会有两个缺点：**1、每个节点都需要进行一次求余计算；2、插入到新的数组时候采用的是头插入法，在多线程环境下会形成链表环。**jdk1.8之后进行了优化，原因在于他控制数组的长度始终是2的整数次幂，每次扩展数组都是原来的2倍，带来的好处是key在新的数组的hash结果只有两种：在原来的位置，或者在原来位置+原数组长度。具体为什么我们可以看下图：
 
-![](https://i.loli.net/2020/12/03/pljrTk5wWXQx8ed.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/724aa0dab7814faf8a1c70e412ef9fed~tplv-k3u1fbpfcp-zoom-1.image)
 
 从图中我们可以看到，在新数组中的hash结果，仅仅取决于高一位的数值。如果高一位是0，那么计算结果就是在原位置，而如果是1，则加上原数组的长度即可。这样我们**只需要判断一个节点的高一位是1 or 0就可以得到他在新数组的位置，而不需要重复hash计算**。HashMap**把每个链表拆分成两个链表，对应原位置或原位置+原数组长度，再分别插入到新的数组中，保留原来的节点顺序**，如下：
 
@@ -220,7 +218,7 @@ HashMap作为一个集合，主要功能则为CRUD，也就是增删查改数据
 
 HashMap并不是线程安全的，在多线程的情况下无法保证数据的一致性。举个例子：HashMap下标2的位置为null，线程A需要将节点X插入下标2的位置，在判断是否为null之后，线程被挂起；此时线程B把新的节点Y插入到下标2的位置；恢复线程A，节点X会直接插入到下标2，覆盖节点Y，导致数据丢失，如下图：
 
-![](https://i.loli.net/2020/12/05/6N3vUwBpzZFR2sV.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6e861e34a9eb40a9aee492c181877baa~tplv-k3u1fbpfcp-zoom-1.image)
 
 jdk1.7及以前扩容时采用的是头插法，这种方式插入速度快，但在多线程环境下会造成链表环，而链表环会在下一次插入时找不到链表尾而发生死循环。限于篇幅，关于这个问题可参考[面试官：HashMap 为什么线程不安全？](https://mp.weixin.qq.com/s/VtIpj-uuxFj5Bf6TmTJMTw)，作者详细解答了关于HashMap的并发问题。jdk1.8之后扩容采用了尾插法，解决了这个问题，但并没有解决数据的一致性问题。
 
@@ -243,7 +241,7 @@ public synchronized V replace(K key, V value) {...}
 
 第二种方法是返回一个`SynchronizedMap`对象，这个对象默认每个方法会锁住整个对象。如下源码：
 
-![](https://i.loli.net/2020/12/05/fw4baIGhnYmOtjg.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9f1dd9e962114a0f98536b9a7a665a06~tplv-k3u1fbpfcp-zoom-1.image)
 
 这里的mutex是什么呢？直接看到构造器：
 
@@ -267,7 +265,7 @@ SynchronizedMap(Map<K,V> m, Object mutex) {
 
 ConcurrentHashMap的设计就是为了解决此问题。他通过降低锁粒度+CAS的方式来提高效率。简单来说，ConcurrentHashMap锁的并不是整个对象，而是一个**数组的一个节点**，那么其他线程访问数组其他节点是不会互相影响，极大提高了并发效率；同时ConcurrentHashMap读操作并不需要获取锁，如下图：
 
-![](https://i.loli.net/2020/12/03/tNxWwMGIv5R8moJ.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/01ce98bbaea64c7fa3684d126e6bb71d~tplv-k3u1fbpfcp-zoom-1.image)
 
 关于ConcurrentHashMap和Hashtable的更多内容，限于篇幅，我会在另一篇文章讲解。
 
@@ -534,15 +532,15 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 
 最后画一张图总体再加深一下整个流程的印象：
 
-![](https://i.loli.net/2020/12/03/dqGmZPIB8ux5hW6.png)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8f6e32716df34e7583cdcb331f481637~tplv-k3u1fbpfcp-zoom-1.image)
 
 
 
 ## 其他问题
 
-#### 为什么jdk1.7以前控制数组的长度为素数，而jdk1.8之后却采用的是2的整数次幂？
+#### 为什么Hashtable控制数组的长度为素数，而HashMap却采用的是2的整数次幂？
 
-答：素数长度可以有效减少哈希冲突；JDK1.8之后采用2的整数次幂是为了提高求余和扩容的效率，同时结合高低位异或的方法使得哈希散列更加均匀。
+答：素数长度可以有效减少哈希冲突；HashMap采用2的整数次幂是为了提高求余和扩容的效率，同时结合高低位异或的方法使得哈希散列更加均匀。
 
 为何素数可以减少哈希冲突？若能保证key的hashcode在每个数字之间都是均匀分布，那么无论是素数还是合数都是相同的效果。例如hashcode在1~20均匀分布，那么无论长度是合数4，还是素数5，分布都是均匀的。而如果hashcode之间的间隔都是2，如1,3,5...,那么长度为4的数组，位置2和位置4两个下标无法放入数据，而长度为5的数组则没有这个问题。**长度为合数的数组会使间隔为其因子的hashcode聚集出现，从而使得散列效果降低**。详细的内容可以参考这篇博客：[算法分析：哈希表的大小为何是素数](https://blog.csdn.net/zhishengqianjun/article/details/79087525),这篇博客采用数据分析证实为什么素数可以更好地实现散列。
 

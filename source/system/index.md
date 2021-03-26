@@ -6,6 +6,8 @@ title: 知识体系
 
 有想要了解的知识点也可以在下方留言区留言，如果文章有帮助，还请不要吝啬大拇指点个赞。
 
+如果网站有文章图片显示不出来，也请在下方留言，我会尽快处理。
+
 ## 安卓
 
 #### 应用层
@@ -33,6 +35,7 @@ title: 知识体系
   - [Service的启动与绑定过程详解（基于api29）](https://blog.csdn.net/weixin_43766753/article/details/107881248)
   - [Activity启动流程详解（基于api28）](https://blog.csdn.net/weixin_43766753/article/details/107746968)
 - Binder机制
+- [关于Handler同步屏障你可能不知道的问题](https://juejin.cn/post/6940607471153053704)
 
 
 
@@ -77,6 +80,9 @@ title: 知识体系
 
 - [学习笔记：运输层](https://blog.csdn.net/weixin_43766753/article/details/106561764)
 - [TCP总结](https://juejin.cn/post/6932842985616834568)
+- [图解Https](https://juejin.cn/post/6934678746808975397)
+- [写给android工程师的cookie分析](https://juejin.cn/post/6942844278792159263)
+- 
 
 
 
